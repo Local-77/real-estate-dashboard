@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 api_key.txt
-
+example.env
 # C extensions
 *.so
 
