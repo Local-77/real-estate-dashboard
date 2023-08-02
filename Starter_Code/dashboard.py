@@ -32,7 +32,8 @@ def housing_units_per_year():
     min_units = housing_units.min()
     max_units = housing_units.max()
     std_units = housing_units.std()
-    fig = housing_units.plot(kind = 'bar')
+    fig = plt.figure()
+    housing_units.plot(kind = 'bar')
     plt.xlabel('Year')
     plt.ylabel('Housing Units')
     plt.title('Housing units by year')
@@ -48,12 +49,13 @@ def average_gross_rent():
     min_units = avg_gross_years.min()
     max_units = avg_gross_years.max()
     std_units = avg_gross_years.std()
-    fig2 = avg_gross_years.plot(kind = 'line', color='red')
+    fig = plt.figure() 
+    avg_gross_years.plot(kind = 'line', color='red')
     plt.xlabel('Year')
     plt.ylabel('average gross rent')
     plt.title('average gross rent over the years')
     plt.ylim(min_units - std_units, max_units + std_units)
-    return fig2
+    return fig
 
     
     # YOUR CODE HERE!
@@ -65,12 +67,13 @@ def average_sales_price():
     min_units = avg_sale_years.min()
     max_units = avg_sale_years.max()
     std_units = avg_sale_years.std()
-    fig3 = avg_sale_years.plot(kind = 'line')
+    fig = plt.figure()
+    avg_sale_years.plot(kind = 'line')
     plt.xlabel('Year')
     plt.ylabel('Sale price (Sqft)')
     plt.title('Average sale price/Sqft over the years')
     plt.ylim(min_units - std_units, max_units + std_units)
-    return fig3
+    return fig
 
     
     # YOUR CODE HERE!
@@ -79,8 +82,9 @@ def average_sales_price():
 
 def average_price_by_neighborhood():
     year_nbhd = sfo_data.groupby([sfo_data.index, 'neighborhood']).mean().reset_index()
-    fig4 = year_nbhd.hvplot.line(x='year', y='sale_price_sqr_foot', groupby='neighborhood').opts(xlabel = 'Year', ylabel='Sale Price/Sqft')
-    return fig4
+    model = year_nbhd.hvplot.line(x='year', y='sale_price_sqr_foot', groupby='neighborhood').opts(xlabel = 'Year', ylabel='Sale Price/Sqft')
+    return hv.render(model)
+
 
 
 
@@ -92,16 +96,19 @@ def average_price_by_neighborhood():
 def top_most_expensive_neighborhoods():
     expensive_hoods = sfo_data.groupby('neighborhood')['gross_rent'].mean()
     top_10_hoods = expensive_hoods.nlargest(10)
-    fig5 = top_10_hoods.hvplot.bar(rot=37)
-    return fig5
+    model = top_10_hoods.hvplot.bar(rot=37)
+    return hv.render(model)
+
 
 
     # YOUR CODE HERE!
 
 
 def most_expensive_neighborhoods_rent_sales():
-    fig6 = year_nbhd.hvplot.bar('year', ['sale_price_sqr_foot', 'gross_rent'], rot=37).opts(xlabel= 'Year', ylabel='gross rent vs price per sqft')
-    return fig6
+    year_nbhd = sfo_data.groupby([sfo_data.index, 'neighborhood']).mean().reset_index()
+    model = year_nbhd.hvplot.bar('year', ['sale_price_sqr_foot', 'gross_rent'], rot=37, groupby='neighborhood').opts(xlabel= 'Year', ylabel='gross rent vs price per sqft')
+    return hv.render(model)
+
     
     # YOUR CODE HERE!
 
@@ -130,20 +137,26 @@ def neighborhood_map():
 
     # YOUR CODE HERE!
 
-tab1, tab2, tab3 = st.tabs(['Welcome', 'Yearly Market Analysis', 'Neighborhood Analysis, '])
+tab1, tab2, tab3 = st.tabs(['Welcome', 'Yearly Market Analysis', 'Neighborhood Analysis'])
 with tab1:
     st.write('This is an analysis of the housing market in San Francisco covering the years 2010-2016. You can use the tabs above to navigate through different types of information wtih visualizations. This shows various data such as what neighborhoods are most expensive to live in, charts showing changes in rent or housing units available, as well as sale price data.')
     st.subheader("Average sale price and gross rent per square foot in San Francisco")
     st.plotly_chart(neighborhood_map())
 with tab2:
     st.header('Yearly Market Analysis')
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.pyplot(housing_units_per_year())
-    with col2:
-        st.pyplot(average_gross_rent())
-    with col3:
-        st.pyplot(average_sales_price())
+    st.write('These charts show the shocking revelation that as housing availability went up, so did the price per square foot, and the average gross rent.')
+   
+    st.pyplot(housing_units_per_year())
+   
+    st.pyplot(average_gross_rent())
+    
+    st.pyplot(average_sales_price())
+    
+with tab3:
+    st.write('This tab shows some different information about the individual neighbordhoods in a bit more detail. the first chart is Average prices by neighborhood and how they\'ve changed over the years. The second chart depicts the average gross rent in the top ten most expensive neighborhoods, whereas the third chart compares the most expensive neighborhoods\' gross rent and sales price per square foot.' )
+    st.bokeh_chart(average_price_by_neighborhood())
+    st.bokeh_chart(top_most_expensive_neighborhoods())
+    st.bokeh_chart(most_expensive_neighborhoods_rent_sales())
                             
 
 
